@@ -30,8 +30,10 @@ jobs:
           content = content.replace('__JSONBIN_KEY__', os.environ['JSONBIN_KEY'])
           content = content.replace('__SHA_PASSWORD__', os.environ['SHA_PASSWORD'])
           content = content.replace('__NIKKI_PASSWORD__', os.environ['NIKKI_PASSWORD'])
-          llm_b64 = base64.b64encode(os.environ['LLM_KEY'].encode()).decode()
-          content = content.replace('__LLM_KEY__', llm_b64)
+          b64 = base64.b64encode(os.environ['LLM_KEY'].encode()).decode()
+          mid = len(b64) // 2
+          content = content.replace('__LLM_K1__', b64[:mid])
+          content = content.replace('__LLM_K2__', b64[mid:])
           with open('dist/index.html', 'w', encoding='utf-8') as f:
               f.write(content)
           print('Secrets injected successfully')
