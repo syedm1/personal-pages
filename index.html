@@ -93,15 +93,31 @@ body {
 </head>
 <body>
 <div id="chat-btn" onclick="toggleChat()" title="Trip Assistant" style="position:fixed;bottom:24px;right:24px;width:54px;height:54px;background:#534AB7;border-radius:50%;display:none;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 18px rgba(83,74,183,0.45);z-index:7000;font-size:22px;transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">&#x2708;&#xFE0F;</div>
-<div id="chat-panel" style="position:fixed;bottom:90px;right:24px;width:330px;height:480px;background:#fff;border-radius:16px;box-shadow:0 8px 36px rgba(0,0,0,0.18);display:none;flex-direction:column;z-index:7000;overflow:hidden;font-family:'Inter',system-ui,sans-serif;">
-  <div style="background:linear-gradient(135deg,#534AB7,#6C5CE7);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-    <div><p style="font-size:13px;font-weight:600;color:#fff;margin:0;">&#x2708;&#xFE0F; Trip Assistant</p><p style="font-size:10px;color:rgba(255,255,255,0.72);margin:2px 0 0;">Sha &amp; Nikki · India + Bangkok 2026</p></div>
-    <button onclick="toggleChat()" style="background:none;border:none;color:rgba(255,255,255,0.8);font-size:22px;cursor:pointer;padding:0;line-height:1;">&times;</button>
+<div id="chat-panel" style="position:fixed;bottom:90px;right:24px;width:330px;height:510px;background:#fff;border-radius:16px;box-shadow:0 8px 36px rgba(0,0,0,0.18);display:none;flex-direction:column;z-index:7000;overflow:hidden;font-family:'Inter',system-ui,sans-serif;">
+  <div style="background:linear-gradient(135deg,#534AB7,#6C5CE7);padding:12px 14px 8px;flex-shrink:0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <p style="font-size:13px;font-weight:600;color:#fff;margin:0;">&#x2708;&#xFE0F; Trip Assistant</p>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button onclick="clearChat()" title="New chat" style="background:rgba(255,255,255,0.15);border:none;border-radius:5px;padding:3px 8px;font-size:11px;color:rgba(255,255,255,0.85);cursor:pointer;font-family:inherit;">&#x1F5D1; New</button>
+        <button onclick="toggleChat()" style="background:none;border:none;color:rgba(255,255,255,0.8);font-size:22px;cursor:pointer;padding:0;line-height:1;">&times;</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:4px;">
+      <button id="tab-chat" onclick="showTab('chat')" style="flex:1;background:rgba(255,255,255,0.25);border:none;border-radius:6px;padding:5px;font-size:11px;color:#fff;cursor:pointer;font-family:inherit;font-weight:500;">&#x1F4AC; Chat</button>
+      <button id="tab-ctx" onclick="showTab('ctx')" style="flex:1;background:rgba(255,255,255,0.1);border:none;border-radius:6px;padding:5px;font-size:11px;color:rgba(255,255,255,0.65);cursor:pointer;font-family:inherit;">&#x1F4CB; Context</button>
+    </div>
   </div>
-  <div id="chat-messages" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;"></div>
-  <div style="padding:10px 12px;border-top:1px solid #e2e8f0;display:flex;gap:6px;flex-shrink:0;">
-    <input id="chat-input" type="text" placeholder="Ask about your trip..." onkeydown="if(event.key==='Enter')sendChat()" style="flex:1;padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;font-family:inherit;outline:none;color:#111827;">
-    <button onclick="sendChat()" style="background:#534AB7;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;">→</button>
+  <div id="view-chat" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+    <div id="chat-messages" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;"></div>
+    <div style="padding:10px 12px;border-top:1px solid #e2e8f0;display:flex;gap:6px;flex-shrink:0;">
+      <input id="chat-input" type="text" placeholder="Ask about your trip..." onkeydown="if(event.key==='Enter')sendChat()" style="flex:1;padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;font-family:inherit;outline:none;color:#111827;">
+      <button onclick="sendChat()" style="background:#534AB7;color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;">&#x2192;</button>
+    </div>
+  </div>
+  <div id="view-ctx" style="flex:1;display:none;flex-direction:column;overflow:hidden;padding:10px 12px 8px;">
+    <p style="font-size:10px;color:#9ca3af;margin:0 0 6px;">Shared notes for Mango — editable by Sha &amp; Nikki. Auto-saved &amp; included in every response.</p>
+    <textarea id="ctx-input" oninput="saveContext()" placeholder="Packing list, hotel bookings, visa status, important numbers, reminders..." style="flex:1;padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;font-family:inherit;resize:none;outline:none;color:#111827;line-height:1.6;"></textarea>
+    <p id="ctx-status" style="font-size:10px;color:#9ca3af;margin:5px 0 0;"></p>
   </div>
 </div>
 <div id="modal-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:8888;padding:16px;font-family:'Inter',system-ui,sans-serif;">
@@ -181,15 +197,123 @@ FLIGHTS STILL TO BOOK:
 - Sha: Melb → Nellore ~May 6-7 (±1-2 days)
 - Both: Delhi → Nellore Jun 4 (±1 day)
 
-You help with: flight search tips, hotel picks, things to do in Delhi/Nellore/Chennai/Bangkok, packing lists, budget, local transport, food, weather, visa info, currency tips. Keep responses short. Address them by name when relevant.`;
-let _chatHistory=[];
+You help with: flight search tips, hotel picks, things to do in Delhi/Nellore/Chennai/Bangkok, packing lists, budget, local transport, food, weather, visa info, currency tips. Keep responses short and friendly. Address them by name when relevant.`;
+
+let _chatMessages=[];
 let _chatOpen=false;
+let _chatBinId=null;
+let _contextBinId=localStorage.getItem('tripContextBinId')||null;
+let sharedContext='';
+
+async function _ensureChatBin(){
+  if(_chatBinId)return;
+  const lk='tripChatBin_'+(currentUser||'guest').toLowerCase();
+  _chatBinId=localStorage.getItem(lk)||null;
+  if(_chatBinId)return;
+  try{
+    const r=await fetch(_BINAPI,{method:'POST',headers:{'Content-Type':'application/json','X-Access-Key':_APIKEY,'X-Bin-Name':'trip-chat-'+(currentUser||'guest').toLowerCase()},body:JSON.stringify({messages:[]})});
+    const j=await r.json();
+    if(!j.metadata)throw new Error(j.message||'fail');
+    _chatBinId=j.metadata.id;
+    localStorage.setItem(lk,_chatBinId);
+  }catch(e){console.warn('Chat bin:',e.message);}
+}
+async function loadChatHistory(){
+  try{
+    await _ensureChatBin();
+    if(!_chatBinId)throw new Error('no bin');
+    const r=await fetch(`${_BINAPI}/${_chatBinId}/latest`,{headers:{'X-Access-Key':_APIKEY}});
+    const j=await r.json();
+    _chatMessages=(j.record||{}).messages||[];
+  }catch(e){
+    try{const l=localStorage.getItem('_chatLocal_'+(currentUser||'guest'));if(l)_chatMessages=JSON.parse(l);}catch(_){}
+  }
+  _renderChatHistory();
+}
+function _renderChatHistory(){
+  const d=document.getElementById('chat-messages');
+  if(!d)return;
+  d.innerHTML='';
+  if(!_chatMessages.length){
+    _addBotMsg('Hey '+(currentUser||'there')+'! \uD83D\uDDFA\uFE0F Ask me anything about your India & Bangkok trip \u2014 flights, hotels, packing, what to do, or anything else!');
+  }else{
+    _chatMessages.forEach(m=>{m.role==='user'?_addUserMsg(m.content):_addBotMsg(m.content);});
+  }
+}
+let _chatSaveTimer=null;
+function _scheduleChatSave(){
+  clearTimeout(_chatSaveTimer);
+  _chatSaveTimer=setTimeout(async()=>{
+    try{
+      if(!_chatBinId)await _ensureChatBin();
+      if(_chatBinId)await fetch(`${_BINAPI}/${_chatBinId}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Access-Key':_APIKEY},body:JSON.stringify({messages:_chatMessages})});
+    }catch(e){localStorage.setItem('_chatLocal_'+(currentUser||'guest'),JSON.stringify(_chatMessages));}
+  },1000);
+}
+async function _ensureContextBin(){
+  if(_contextBinId)return;
+  try{
+    const r=await fetch(_BINAPI,{method:'POST',headers:{'Content-Type':'application/json','X-Access-Key':_APIKEY,'X-Bin-Name':'trip-context-shared'},body:JSON.stringify({content:''})});
+    const j=await r.json();
+    if(!j.metadata)throw new Error(j.message||'fail');
+    _contextBinId=j.metadata.id;
+    localStorage.setItem('tripContextBinId',_contextBinId);
+  }catch(e){console.warn('Context bin:',e.message);}
+}
+async function loadContext(){
+  try{
+    await _ensureContextBin();
+    if(!_contextBinId)throw new Error('no bin');
+    const r=await fetch(`${_BINAPI}/${_contextBinId}/latest`,{headers:{'X-Access-Key':_APIKEY}});
+    const j=await r.json();
+    sharedContext=(j.record||{}).content||'';
+  }catch(e){
+    try{const l=localStorage.getItem('_contextLocal');if(l)sharedContext=JSON.parse(l).content||'';}catch(_){}
+  }
+  const el=document.getElementById('ctx-input');
+  if(el)el.value=sharedContext;
+}
+let _ctxSaveTimer=null;
+function saveContext(){
+  sharedContext=document.getElementById('ctx-input').value;
+  const s=document.getElementById('ctx-status');
+  if(s)s.textContent='Saving...';
+  clearTimeout(_ctxSaveTimer);
+  _ctxSaveTimer=setTimeout(async()=>{
+    try{
+      await _ensureContextBin();
+      if(_contextBinId)await fetch(`${_BINAPI}/${_contextBinId}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Access-Key':_APIKEY},body:JSON.stringify({content:sharedContext,updatedBy:currentUser,updatedAt:new Date().toISOString()})});
+      if(s)s.textContent='Saved \u2713';
+    }catch(e){
+      localStorage.setItem('_contextLocal',JSON.stringify({content:sharedContext}));
+      if(s)s.textContent='Saved locally';
+    }
+  },1200);
+}
+function showTab(tab){
+  document.getElementById('view-chat').style.display=tab==='chat'?'flex':'none';
+  document.getElementById('view-ctx').style.display=tab==='ctx'?'flex':'none';
+  const ta=document.getElementById('tab-chat'),tb=document.getElementById('tab-ctx');
+  ta.style.background=tab==='chat'?'rgba(255,255,255,0.25)':'rgba(255,255,255,0.1)';
+  ta.style.color=tab==='chat'?'#fff':'rgba(255,255,255,0.65)';
+  tb.style.background=tab==='ctx'?'rgba(255,255,255,0.25)':'rgba(255,255,255,0.1)';
+  tb.style.color=tab==='ctx'?'#fff':'rgba(255,255,255,0.65)';
+  if(tab==='ctx')loadContext();
+}
+function clearChat(){
+  if(!confirm('Start a new chat? This will clear your current conversation history.'))return;
+  _chatMessages=[];
+  _renderChatHistory();
+  _scheduleChatSave();
+}
 function toggleChat(){
   _chatOpen=!_chatOpen;
   const p=document.getElementById('chat-panel');
   p.style.display=_chatOpen?'flex':'none';
-  if(_chatOpen&&!_chatHistory.length){
-    _addBotMsg('Hey '+( currentUser||'there')+'! \u{1F5FA}\uFE0F I know your whole itinerary \u2014 ask me anything about flights, hotels, Bangkok tips, packing, or anything else for the trip!');
+  if(_chatOpen){
+    if(!_chatMessages.length)loadChatHistory();
+    else _renderChatHistory();
+    loadContext();
     setTimeout(()=>document.getElementById('chat-input').focus(),50);
   }
 }
@@ -220,29 +344,32 @@ async function sendChat(){
   if(!text)return;
   inp.value='';
   _addUserMsg(text);
-  _chatHistory.push({role:'user',content:text});
+  _chatMessages.push({role:'user',content:text,time:new Date().toISOString()});
   if(!_OKEY||_OKEY.length<20){
     _addBotMsg('\u26A0\uFE0F LLM key not configured. Add LLM_KEY to GitHub secrets and redeploy.');
-    _chatHistory.pop();
+    _chatMessages.pop();
     return;
   }
   const typing=_addTyping();
+  const fullPrompt=_SYSPROMPT+(sharedContext?'\n\nSHARED CONTEXT (maintained by Sha & Nikki):\n'+sharedContext:'');
+  const apiMsgs=_chatMessages.slice(-20).map(m=>({role:m.role,content:m.content}));
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':_OKEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-3-5-haiku-20241022',system:_SYSPROMPT,messages:_chatHistory,max_tokens:500})
+      body:JSON.stringify({model:'claude-3-5-haiku-20241022',system:fullPrompt,messages:apiMsgs,max_tokens:500})
     });
     const j=await r.json();
     typing.remove();
-    if(j.error){_addBotMsg('\u274C '+j.error.message);_chatHistory.pop();return;}
+    if(j.error){_addBotMsg('\u274C '+j.error.message);_chatMessages.pop();return;}
     const reply=j.content[0].text;
-    _chatHistory.push({role:'assistant',content:reply});
+    _chatMessages.push({role:'assistant',content:reply,time:new Date().toISOString()});
     _addBotMsg(reply);
+    _scheduleChatSave();
   }catch(e){
     typing.remove();
     _addBotMsg('Could not connect. Check your internet connection.');
-    _chatHistory.pop();
+    _chatMessages.pop();
   }
 }
 
