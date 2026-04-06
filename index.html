@@ -1,0 +1,489 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Sha + Nikki — India Trip 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f3f4f6;
+  --color-background-tertiary: #e9eaec;
+  --color-border-tertiary: #e2e8f0;
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: #E2E5EC; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #111827;
+  padding: 28px 16px 48px;
+  min-height: 100vh;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.page-wrap {
+  background: #fff;
+  max-width: 820px;
+  margin: 0 auto;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.07), 0 16px 48px rgba(0,0,0,0.09);
+  padding: 28px 34px 36px;
+  border-top: 4px solid #534AB7;
+}
+#print-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #111827;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 6px 14px;
+  font-size: 11.5px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 22px;
+  letter-spacing: 0.01em;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+}
+#print-btn:hover { opacity: 1; }
+.sec-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  margin-bottom: 7px;
+}
+@media (max-width: 640px) {
+  body { padding: 0; }
+  .page-wrap { border-radius: 0; padding: 14px 12px 28px; min-height: 100vh; }
+  .cards-row { grid-template-columns: 1fr !important; }
+  #booking-grid { grid-template-columns: 1fr !important; }
+}
+@media print {
+  html { background: white; }
+  .page-wrap {
+    box-shadow: none;
+    border-radius: 0;
+    max-width: 100%;
+    padding: 0;
+    border-top: 3px solid #534AB7;
+  }
+  body { padding: 0; font-size: 11.5px; }
+  #print-btn { display: none !important; }
+  .cal-week { break-inside: avoid; page-break-inside: avoid; }
+  .cards-row { break-inside: avoid; page-break-inside: avoid; }
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  @page { size: A4 portrait; margin: 12mm 14mm; }
+}
+</style>
+</head>
+<body>
+<div id="modal-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:8888;padding:16px;font-family:'Inter',system-ui,sans-serif;">
+  <div style="background:#fff;border-radius:14px;padding:22px;max-width:400px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 id="modal-date" style="font-size:14px;font-weight:600;color:#111827;"></h3>
+      <button onclick="closeDayModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#9ca3af;line-height:1;padding:0 4px;">&times;</button>
+    </div>
+    <div id="modal-notes" style="margin-bottom:12px;"></div>
+    <input type="hidden" id="modal-key">
+    <textarea id="modal-input" placeholder="Add a note..." style="width:100%;padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;font-family:inherit;resize:vertical;min-height:70px;outline:none;margin-bottom:8px;color:#111827;"></textarea>
+    <button id="modal-add-btn" onclick="addDayNote()" style="width:100%;background:#534AB7;color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:500;font-family:inherit;cursor:pointer;">Add note</button>
+  </div>
+</div>
+<div id="pw-gate" style="position:fixed;inset:0;background:#E2E5EC;display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;font-family:'Inter',system-ui,sans-serif;">
+  <div style="background:#fff;border-radius:16px;padding:36px 28px 28px;max-width:320px;width:100%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.15);border-top:4px solid #534AB7;">
+    <div style="font-size:28px;margin-bottom:12px;">✈️</div>
+    <h2 style="font-size:16px;font-weight:600;color:#111827;margin-bottom:5px;">Sha + Nikki · Trip 2026</h2>
+    <p style="font-size:12px;color:#6b7280;margin-bottom:20px;">Enter password to view the itinerary</p>
+    <input id="pw-input" type="password" placeholder="Password" autocomplete="current-password"
+      style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;outline:none;margin-bottom:8px;color:#111827;">
+    <p id="pw-error" style="font-size:11px;color:#dc2626;margin-bottom:10px;min-height:16px;"></p>
+    <button onclick="checkPw()" style="width:100%;background:#534AB7;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;">Open itinerary →</button>
+  </div>
+</div>
+<div class="page-wrap">
+<button id="print-btn" onclick="window.print()">Print / Save as PDF</button>
+<div id="root"></div>
+</div>
+<script>
+let currentUser=sessionStorage.getItem('tripUser')||null;
+(function(){
+  if(sessionStorage.getItem('travelauth')==='1'){
+    document.getElementById('pw-gate').style.display='none';
+  }
+  document.getElementById('pw-input').addEventListener('keydown',function(e){
+    if(e.key==='Enter') checkPw();
+  });
+})();
+function checkPw(){
+  const v=document.getElementById('pw-input').value.trim();
+  if(v==='traveltime2026sha'||v==='traveltime2026nikki'){
+    currentUser=v==='traveltime2026sha'?'Sha':'Nikki';
+    sessionStorage.setItem('travelauth','1');
+    sessionStorage.setItem('tripUser',currentUser);
+    document.getElementById('pw-gate').style.display='none';
+    loadData();
+  } else {
+    document.getElementById('pw-error').textContent='Incorrect password, try again.';
+    document.getElementById('pw-input').value='';
+    document.getElementById('pw-input').focus();
+  }
+}
+
+// ── JSONBin cloud storage ──
+const _APIKEY='$2a$10$TgeEgbYnNvRVBnwoMnnMq.NQ7bBU37i0BNMeRLZGTas1AsXMaGTVy';
+const _BINAPI='https://api.jsonbin.io/v3/b';
+let _binId=localStorage.getItem('tripBinId')||null;
+let tripData={dayNotes:{},stickyNotes:[]};
+async function _ensureBin(){
+  if(_binId)return;
+  const r=await fetch(_BINAPI,{method:'POST',headers:{'Content-Type':'application/json','X-Access-Key':_APIKEY,'X-Bin-Name':'sha-nikki-trip-2026'},body:JSON.stringify(tripData)});
+  const j=await r.json();
+  if(!j.metadata)throw new Error(j.message||'JSONBin create failed — check API key or CORS');
+  _binId=j.metadata.id;
+  localStorage.setItem('tripBinId',_binId);
+}
+async function loadData(){
+  try{
+    await _ensureBin();
+    const r=await fetch(`${_BINAPI}/${_binId}/latest`,{headers:{'X-Access-Key':_APIKEY}});
+    const j=await r.json();
+    tripData=Object.assign({dayNotes:{},stickyNotes:[]},j.record||{});
+  }catch(e){
+    console.warn('Cloud load unavailable, using local data:',e.message);
+    try{const l=localStorage.getItem('_tripLocal');if(l)tripData=JSON.parse(l);}catch(_){}
+  }
+  updateNoteIndicators();
+  renderStickies();
+}
+let _saveTimer=null;
+async function _saveData(){
+  try{
+    await _ensureBin();
+    await fetch(`${_BINAPI}/${_binId}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Access-Key':_APIKEY},body:JSON.stringify(tripData)});
+  }catch(e){
+    console.warn('Cloud save unavailable, saving locally:',e.message);
+    localStorage.setItem('_tripLocal',JSON.stringify(tripData));
+  }
+}
+function updateNoteIndicators(){
+  document.querySelectorAll('.ni').forEach(el=>el.remove());
+  Object.entries(tripData.dayNotes||{}).forEach(([k,notes])=>{
+    if(!notes||!notes.length)return;
+    const cell=document.getElementById('day-'+k);
+    if(!cell)return;
+    const ind=document.createElement('div');
+    ind.className='ni';
+    ind.style.cssText='font-size:9px;color:#534AB7;margin-top:2px;font-weight:600;';
+    ind.textContent='\uD83D\uDCAC '+notes.length;
+    cell.appendChild(ind);
+  });
+}
+function openDayModal(k,label){
+  const notes=tripData.dayNotes[k]||[];
+  document.getElementById('modal-overlay').style.display='flex';
+  document.getElementById('modal-date').textContent=label;
+  document.getElementById('modal-key').value=k;
+  document.getElementById('modal-input').value='';
+  document.getElementById('modal-add-btn').textContent='Add note as '+(currentUser||'guest');
+  document.getElementById('modal-notes').innerHTML=notes.length?
+    notes.map((n,i)=>`<div style="padding:7px 0;border-bottom:0.5px solid #e2e8f0;"><div style="display:flex;justify-content:space-between;align-items:center;"><span><span style="font-size:10px;font-weight:600;color:#534AB7;">${n.user}</span><span style="font-size:10px;color:#9ca3af;margin-left:6px;">${n.time}</span></span>${n.user===currentUser?`<button onclick="deleteNote('${k}',${i})" style="background:none;border:none;font-size:10px;color:#9ca3af;cursor:pointer;padding:0;">✕</button>`:''}</div><p style="font-size:12px;color:#111827;margin-top:3px;white-space:pre-wrap;">${n.text}</p></div>`).join(''):
+    '<p style="font-size:12px;color:#9ca3af;padding:8px 0;">No notes yet — be the first!</p>';
+}
+function closeDayModal(){
+  document.getElementById('modal-overlay').style.display='none';
+}
+function addDayNote(){
+  const k=document.getElementById('modal-key').value;
+  const text=document.getElementById('modal-input').value.trim();
+  if(!text){document.getElementById('modal-input').focus();return;}
+  if(!tripData.dayNotes[k])tripData.dayNotes[k]=[];
+  const now=new Date();
+  tripData.dayNotes[k].push({user:currentUser||'guest',text,time:now.toLocaleString('en-AU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})});
+  updateNoteIndicators();
+  openDayModal(k,document.getElementById('modal-date').textContent);
+  _saveData();
+}
+function deleteNote(k,idx){
+  if(!tripData.dayNotes[k])return;
+  tripData.dayNotes[k].splice(idx,1);
+  updateNoteIndicators();
+  openDayModal(k,document.getElementById('modal-date').textContent);
+  _saveData();
+}
+const _STICKY_COLORS=['#FFF9C4','#FFE4E1','#D1F5E0','#DBEAFE','#EDE9FE','#FFE4B5'];
+function renderStickies(){
+  const c=document.getElementById('stickies-container');
+  if(!c)return;
+  const notes=tripData.stickyNotes||[];
+  if(!notes.length){
+    c.innerHTML='<p style="font-size:12px;color:#9ca3af;padding:6px 0;">No sticky notes yet — click <b>+ Add</b> to create one.</p>';
+    return;
+  }
+  c.innerHTML=notes.map((s,i)=>`<div style="background:${s.color};border-radius:10px;padding:10px 10px 8px;position:relative;box-shadow:0 2px 8px rgba(0,0,0,0.08);"><button onclick="deleteSticky(${i})" title="Delete" style="position:absolute;top:6px;right:7px;background:none;border:none;font-size:13px;color:#aaa;cursor:pointer;line-height:1;">&#x2715;</button><textarea oninput="updateSticky(${i},this.value)" style="width:100%;background:transparent;border:none;outline:none;font-size:12px;font-family:inherit;resize:none;min-height:80px;color:#111827;line-height:1.65;padding-right:16px;" placeholder="Type here...">${s.text}</textarea></div>`).join('');
+}
+function addSticky(){
+  if(!tripData.stickyNotes)tripData.stickyNotes=[];
+  const color=_STICKY_COLORS[tripData.stickyNotes.length%_STICKY_COLORS.length];
+  tripData.stickyNotes.push({text:'',color});
+  renderStickies();
+  const textareas=document.querySelectorAll('#stickies-container textarea');
+  if(textareas.length)textareas[textareas.length-1].focus();
+  _saveData();
+}
+function deleteSticky(idx){
+  tripData.stickyNotes.splice(idx,1);
+  renderStickies();
+  _saveData();
+}
+let _stickyTimer=null;
+function updateSticky(idx,val){
+  if(!tripData.stickyNotes||!tripData.stickyNotes[idx])return;
+  tripData.stickyNotes[idx].text=val;
+  clearTimeout(_stickyTimer);
+  _stickyTimer=setTimeout(_saveData,1200);
+}
+
+const shaLoc = {
+  '0504':'melb','0505':'melb','0506':'travel','0507':'travel',
+  '0508':'nellore','0509':'nellore','0510':'nellore',
+  '0511':'nellore','0512':'nellore','0513':'nellore','0514':'nellore','0515':'nellore','0516':'nellore','0517':'nellore',
+  '0518':'nellore','0519':'nellore','0520':'nellore','0521':'nellore','0522':'nellore','0523':'nellore','0524':'nellore',
+  '0525':'nellore','0526':'nellore','0527':'nellore','0528':'nellore',
+  '0529':'delhi','0530':'delhi','0531':'delhi',
+  '0601':'delhi','0602':'delhi','0603':'delhi',
+  '0604':'travel',
+  '0605':'nellore','0606':'nellore','0607':'nellore','0608':'nellore','0609':'nellore',
+  '0610':'chennai',
+  '0611':'bangkok','0612':'bangkok','0613':'bangkok','0614':'travel',
+  '0615':'travel','0616':'melb','0617':'melb'
+};
+const nikkiLoc = {
+  '0504':'melb','0505':'melb','0506':'melb','0507':'melb','0508':'melb','0509':'melb','0510':'melb',
+  '0511':'melb','0512':'melb','0513':'melb','0514':'melb','0515':'travel','0516':'delhi','0517':'delhi',
+  '0518':'delhi','0519':'delhi','0520':'delhi','0521':'delhi','0522':'delhi','0523':'delhi','0524':'delhi',
+  '0525':'delhi','0526':'delhi','0527':'delhi','0528':'delhi',
+  '0529':'delhi','0530':'delhi','0531':'delhi',
+  '0601':'delhi','0602':'delhi','0603':'delhi',
+  '0604':'travel',
+  '0605':'nellore','0606':'nellore','0607':'nellore','0608':'nellore','0609':'nellore',
+  '0610':'chennai',
+  '0611':'bangkok','0612':'bangkok','0613':'bangkok','0614':'travel',
+  '0615':'travel','0616':'melb','0617':'melb'
+};
+const events = {
+  '0508':'Sha arrives Nellore',
+  '0516':'Nikki arrives Delhi',
+  '0520':'WFH',
+  '0529':'Sha → Delhi',
+  '0530':"Nikki's family event",
+  '0604':'Both → Nellore',
+  '0610':'Drive Chennai · fly BKK 23:40',
+  '0611':'Arrive Bangkok DMK 04:35',
+  '0614':'Fly Bangkok → Melb ✈ 21:40',
+  '0616':'Arrive Melb'
+};
+
+const SS = {
+  nellore:{ bg:'#EEEDFE', color:'#3C3489', label:'Nellore' },
+  delhi:  { bg:'#534AB7', color:'#fff',    label:'Delhi' },
+  chennai:{ bg:'#CBF0E8', color:'#0D5C4C', label:'Chennai' },
+  bangkok:{ bg:'#FFF8DC', color:'#7B5B10', label:'Bangkok' },
+  travel: { bg:'#D3D1C7', color:'#444441', label:'→' },
+  melb:   null
+};
+const NS = {
+  delhi:  { bg:'#ED93B1', color:'#4B1528', label:'Delhi' },
+  nellore:{ bg:'#CEC2F8', color:'#26215C', label:'Nellore' },
+  chennai:{ bg:'#CBF0E8', color:'#0D5C4C', label:'Chennai' },
+  bangkok:{ bg:'#FFF8DC', color:'#7B5B10', label:'Bangkok' },
+  travel: { bg:'#D3D1C7', color:'#444441', label:'→' },
+  melb:   null
+};
+
+const togetherBg = {
+  'delhi-delhi':     '#E6F1FB',
+  'nellore-nellore': '#EEEDFE',
+  'chennai-chennai': '#CBF0E8',
+  'bangkok-bangkok': '#FFF8DC'
+};
+function getCellBg(sl, nl) { return togetherBg[sl+'-'+nl] || null; }
+
+const weeks = [
+  [{m:5,d:4},{m:5,d:5},{m:5,d:6},{m:5,d:7},{m:5,d:8},{m:5,d:9},{m:5,d:10}],
+  [{m:5,d:11},{m:5,d:12},{m:5,d:13},{m:5,d:14},{m:5,d:15},{m:5,d:16},{m:5,d:17}],
+  [{m:5,d:18},{m:5,d:19},{m:5,d:20},{m:5,d:21},{m:5,d:22},{m:5,d:23},{m:5,d:24}],
+  [{m:5,d:25},{m:5,d:26},{m:5,d:27},{m:5,d:28},{m:5,d:29},{m:5,d:30},{m:5,d:31}],
+  [{m:6,d:1},{m:6,d:2},{m:6,d:3},{m:6,d:4},{m:6,d:5},{m:6,d:6},{m:6,d:7}],
+  [{m:6,d:8},{m:6,d:9},{m:6,d:10},{m:6,d:11},{m:6,d:12},{m:6,d:13},{m:6,d:14}],
+  [{m:6,d:15},{m:6,d:16},{m:6,d:17},null,null,null,null]
+];
+const dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+function chip(style, letter) {
+  if (!style) return '';
+  return `<div style="background:${style.bg};color:${style.color};border-radius:4px;padding:2px 5px;font-size:10px;font-weight:500;margin-top:3px;display:inline-block;">${letter}: ${style.label}</div>`;
+}
+function key(m,d){ return String(m).padStart(2,'0')+String(d).padStart(2,'0'); }
+
+function bookingRow(route, target, flex, shared) {
+  return `<div style="display:flex;align-items:baseline;justify-content:space-between;padding:3.5px 0;border-bottom:0.5px solid var(--color-border-tertiary);gap:8px;">
+    <span style="font-size:11px;color:var(--color-text-primary);">${route}${shared ? ' <span style="font-size:9px;color:var(--color-text-tertiary);">· shared</span>' : ''}</span>
+    <span style="font-size:10px;white-space:nowrap;text-align:right;"><b style="font-weight:500;">${target}</b>&ensp;<span style="color:var(--color-text-tertiary);">${flex}</span></span>
+  </div>`;
+}
+
+let html = '';
+html += `<div style="margin-bottom:1.5rem;padding-bottom:1.2rem;border-bottom:1px solid var(--color-border-tertiary);">
+  <h1 style="font-size:19px;font-weight:600;color:var(--color-text-primary);margin-bottom:5px;letter-spacing:-0.025em;">Sha + Nikki — India & Bangkok 2026</h1>
+  <p style="font-size:12px;color:var(--color-text-secondary);">May 4 – June 16 &nbsp;·&nbsp; Chennai → Bangkok Jun 10 night (FD154) &nbsp;·&nbsp; Bangkok → Melb Jun 14 (JQ30)</p>
+</div>`;
+
+html += `<div style="background:#fffbeb;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:1.5rem;">
+  <p style="font-size:10px;font-weight:600;color:#b45309;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px;">Notes</p>
+  <ul style="font-size:11.5px;color:#78350f;line-height:1.8;padding-left:16px;">
+    <li>Nikki: book <b>Melb → Delhi</b> ~May 15 &nbsp;·&nbsp; ±1–2 days for best deal</li>
+    <li>Sha: book <b>Melb → Nellore</b> ~May 6–7 &nbsp;·&nbsp; ±1–2 days</li>
+    <li>Both: book <b>Delhi → Nellore</b> Jun 4 together &nbsp;·&nbsp; ±1 day</li>
+    <li>FD154 (Chennai→Bangkok) & JQ30 (Bangkok→Melb) confirmed ✓</li>
+  </ul>
+</div>`;
+
+// Together summary cards — chronological
+html += `<div class="sec-label">Together</div>`;
+html += `<div class="cards-row" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:8px;">`;
+[
+  ['6 days','Delhi',  'May 29–Jun 3','#0C447C','#E6F1FB',"Family event Sat May 30"],
+  ['5 days','Nellore','Jun 5–9',    '#3C3489','#EEEDFE','Sha\'s family'],
+  ['4 days','Bangkok','Jun 11–14',  '#7B5B10','#FFF8DC','AirAsia FD154 · Jetstar JQ30'],
+].forEach(([n,title,dates,color,bg,note])=>{
+  html += `<div style="background:${bg};border-radius:10px;padding:11px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.07);">
+    <div style="font-size:20px;font-weight:500;color:${color};">${n}</div>
+    <div style="font-size:12px;font-weight:500;color:${color};margin-top:2px;">${title}</div>
+    <div style="font-size:11px;color:${color};opacity:0.8;margin-top:1px;">${dates}</div>
+    <div style="font-size:10px;color:${color};opacity:0.6;margin-top:3px;line-height:1.4;">${note}</div>
+  </div>`;
+});
+html += `</div>`;
+
+html += `<div class="sec-label" style="margin-top:14px;">Solo time</div>`;
+html += `<div class="cards-row" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:1.25rem;">`;
+[
+  ['21 days','Sha solo — Nellore','May 8–28','#3C3489'],
+  ['13 days','Nikki solo — Delhi','May 16–28','#72243E'],
+].forEach(([n,title,dates,color])=>{
+  html += `<div style="background:var(--color-background-secondary);border-radius:10px;padding:11px 14px;box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+    <div style="font-size:20px;font-weight:500;color:${color};">${n}</div>
+    <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-top:2px;">${title}</div>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px;">${dates}</div>
+  </div>`;
+});
+html += `</div>`;
+
+// Legend
+html += `<div class="sec-label" style="margin-top:14px;">Key</div>`;
+html += `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.2rem;">`;
+[
+  ['#EEEDFE','#3C3489','Sha – Nellore'],
+  ['#534AB7','#fff','Sha – Delhi'],
+  ['#ED93B1','#4B1528','Nikki – Delhi'],
+  ['#CEC2F8','#26215C','Nikki – Nellore'],
+  ['#CBF0E8','#0D5C4C','Chennai'],
+  ['#FFF8DC','#7B5B10','Bangkok'],
+  ['#D3D1C7','#444441','Travel'],
+].forEach(([bg,color,label])=>{
+  html += `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary);">
+    <div style="background:${bg};border-radius:3px;width:24px;height:13px;flex-shrink:0;"></div>${label}</div>`;
+});
+html += `</div>`;
+
+// Calendar
+html += `<div class="sec-label" style="margin-top:16px;">Calendar</div>`;
+html += `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px;">`;
+html += `<div style="min-width:460px;padding:0 4px;">`;
+// Day headers
+html += `<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin-bottom:4px;">`;
+dayNames.forEach((d,i)=>{
+  html += `<div style="text-align:center;font-size:9.5px;font-weight:600;letter-spacing:0.04em;color:var(--color-text-${i>=5?'secondary':'tertiary'});padding-bottom:3px;">${d}</div>`;
+});
+html += `</div>`;
+
+let curMonth = null;
+weeks.forEach((week, wi) => {
+  const firstDay = week.find(d => d !== null);
+  if (firstDay && firstDay.m !== curMonth) {
+    curMonth = firstDay.m;
+    html += `<div style="font-size:11.5px;font-weight:600;color:var(--color-text-primary);letter-spacing:-0.01em;padding:${wi===0?'0':'14px'} 0 5px;">${curMonth===5?'May':'June'} 2026</div>`;
+  }
+  html += `<div class="cal-week" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin-bottom:3px;">`;
+  week.forEach((day, di) => {
+    if (!day) { html += `<div></div>`; return; }
+    const k = key(day.m, day.d);
+    const sl = shaLoc[k], nl = nikkiLoc[k], ev = events[k];
+    const wknd = di >= 5;
+    const isMelb = sl === 'melb' && nl === 'melb';
+    const together = getCellBg(sl, nl);
+    const isEvent = k === '0530';
+    const bgColor = together || (isMelb ? 'var(--color-background-tertiary)' : wknd ? 'var(--color-background-secondary)' : 'var(--color-background-primary)');
+    const border = together ? '0.5px solid transparent' : `0.5px solid var(--color-border-${isMelb?'tertiary':'tertiary'})`;
+    const mName=day.m===5?'May':'Jun';
+    html += `<div id="day-${k}" style="background:${bgColor};border:${border};border-radius:7px;padding:5px 6px;min-height:${isMelb?'42':'78'}px;${isEvent?'outline:2px solid #185FA5;outline-offset:-2px;':''}cursor:pointer;" onclick="openDayModal('${k}','${mName} ${day.d}')">`;
+    html += `<div style="font-size:12px;font-weight:500;color:${isMelb||wknd?'var(--color-text-tertiary)':'var(--color-text-primary)'};">${day.d}</div>`;
+    if (!isMelb) {
+      html += chip(SS[sl], 'S');
+      html += `<div>` + chip(NS[nl], 'N') + `</div>`;
+    }
+    if (ev) html += `<div style="margin-top:3px;font-size:9px;line-height:1.3;color:${isEvent?'#185FA5':'var(--color-text-secondary)'};font-weight:${isEvent?'500':'400'};">${ev}</div>`;
+    html += `</div>`;
+  });
+  html += `</div>`;
+});
+html += `</div></div>`;
+
+html += `<div style="height:1px;background:var(--color-border-tertiary);margin:18px 0 14px;"></div>`;
+html += `<div class="sec-label">Flight planner</div>`;
+html += `<div id="booking-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+  <div style="background:var(--color-background-secondary);border-radius:8px;padding:11px 14px;border-top:2px solid #534AB7;">
+    <p style="font-size:10px;font-weight:600;color:#3C3489;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:8px;">Sha — flights to book</p>
+    ${bookingRow('Melb → Nellore','May 6–7','± 1–2 days',false)}
+    ${bookingRow('Nellore → Delhi','May 29','± 1–2 days',false)}
+    ${bookingRow('Delhi → Nellore','Jun 4','± 1 day',true)}
+    ${bookingRow('Nellore → Chennai','Jun 10','drive 3 hrs · fixed',false)}
+    ${bookingRow('Chennai → Bangkok · FD154','Jun 10 23:40','confirmed ✓',true)}
+    ${bookingRow('Bangkok → Melb · JQ30','Jun 14 21:40','confirmed ✓',true)}
+  </div>
+  <div style="background:var(--color-background-secondary);border-radius:8px;padding:11px 14px;border-top:2px solid #ED93B1;">
+    <p style="font-size:10px;font-weight:600;color:#4B1528;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:8px;">Nikki — flights to book</p>
+    ${bookingRow('Melb → Delhi','May 15','± 1–2 days',false)}
+    ${bookingRow('Delhi → Nellore','Jun 4','± 1 day',true)}
+    ${bookingRow('Nellore → Chennai','Jun 10','drive 3 hrs · fixed',false)}
+    ${bookingRow('Chennai → Bangkok · FD154','Jun 10 23:40','confirmed ✓',true)}
+    ${bookingRow('Bangkok → Melb · JQ30','Jun 14 21:40','confirmed ✓',true)}
+  </div>
+</div>`;
+
+html += `<div style="margin-top:20px;">`;
+html += `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><div class="sec-label" style="margin-bottom:0;">Sticky notes</div><button onclick="addSticky()" style="background:#534AB7;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:500;font-family:inherit;cursor:pointer;letter-spacing:0.02em;">+ Add</button></div>`;
+html += `<div id="stickies-container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;"><p style="font-size:12px;color:#9ca3af;padding:6px 0;">No sticky notes yet — click <b>+ Add</b> to create one.</p></div>`;
+html += `</div>`;
+
+
+document.getElementById('root').innerHTML = html;
+if(sessionStorage.getItem('travelauth')==='1') loadData();
+</script>
+</body>
+</html>
