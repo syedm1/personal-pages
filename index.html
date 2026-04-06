@@ -159,7 +159,7 @@ function checkPw(){
 }
 
 // ── Chat assistant ──
-const _OKEY=atob('__LLM_KEY__');
+const _OKEY_B64='__LLM_KEY__';const _OKEY=_OKEY_B64.startsWith('__')?'':atob(_OKEY_B64);
 const _SYSPROMPT=`You are Mango, a friendly AI travel assistant built specifically for Sha and Nikki's India & Bangkok trip in 2026. Be warm, concise, and practical. Use bullet points for lists.
 
 THEIR ITINERARY:
@@ -221,7 +221,7 @@ async function sendChat(){
   inp.value='';
   _addUserMsg(text);
   _chatHistory.push({role:'user',content:text});
-  if(_OKEY==='__LLM_KEY__'||!_OKEY||_OKEY.length<10){
+  if(!_OKEY||_OKEY.length<20){
     _addBotMsg('\u26A0\uFE0F LLM key not configured. Add LLM_KEY to GitHub secrets and redeploy.');
     _chatHistory.pop();
     return;
