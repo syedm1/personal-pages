@@ -80,7 +80,7 @@ body {
     border-top: 3px solid #534AB7;
   }
   body { padding: 0; font-size: 11.5px; }
-  #print-btn { display: none !important; }
+  #print-btn, #chat-btn, #chat-panel { display: none !important; }
   .cal-week { break-inside: avoid; page-break-inside: avoid; }
   .cards-row { break-inside: avoid; page-break-inside: avoid; }
   *, *::before, *::after {
@@ -92,6 +92,18 @@ body {
 </style>
 </head>
 <body>
+<div id="chat-btn" onclick="toggleChat()" title="Trip Assistant" style="position:fixed;bottom:24px;right:24px;width:54px;height:54px;background:#534AB7;border-radius:50%;display:none;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 18px rgba(83,74,183,0.45);z-index:7000;font-size:22px;transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">&#x2708;&#xFE0F;</div>
+<div id="chat-panel" style="position:fixed;bottom:90px;right:24px;width:330px;height:480px;background:#fff;border-radius:16px;box-shadow:0 8px 36px rgba(0,0,0,0.18);display:none;flex-direction:column;z-index:7000;overflow:hidden;font-family:'Inter',system-ui,sans-serif;">
+  <div style="background:linear-gradient(135deg,#534AB7,#6C5CE7);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <div><p style="font-size:13px;font-weight:600;color:#fff;margin:0;">&#x2708;&#xFE0F; Trip Assistant</p><p style="font-size:10px;color:rgba(255,255,255,0.72);margin:2px 0 0;">Sha &amp; Nikki · India + Bangkok 2026</p></div>
+    <button onclick="toggleChat()" style="background:none;border:none;color:rgba(255,255,255,0.8);font-size:22px;cursor:pointer;padding:0;line-height:1;">&times;</button>
+  </div>
+  <div id="chat-messages" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;"></div>
+  <div style="padding:10px 12px;border-top:1px solid #e2e8f0;display:flex;gap:6px;flex-shrink:0;">
+    <input id="chat-input" type="text" placeholder="Ask about your trip..." onkeydown="if(event.key==='Enter')sendChat()" style="flex:1;padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;font-family:inherit;outline:none;color:#111827;">
+    <button onclick="sendChat()" style="background:#534AB7;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;">→</button>
+  </div>
+</div>
 <div id="modal-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:8888;padding:16px;font-family:'Inter',system-ui,sans-serif;">
   <div style="background:#fff;border-radius:14px;padding:22px;max-width:400px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -124,6 +136,7 @@ let currentUser=sessionStorage.getItem('tripUser')||null;
 (function(){
   if(sessionStorage.getItem('travelauth')==='1'){
     document.getElementById('pw-gate').style.display='none';
+    document.getElementById('chat-btn').style.display='flex';
   }
   document.getElementById('pw-input').addEventListener('keydown',function(e){
     if(e.key==='Enter') checkPw();
@@ -136,11 +149,100 @@ function checkPw(){
     sessionStorage.setItem('travelauth','1');
     sessionStorage.setItem('tripUser',currentUser);
     document.getElementById('pw-gate').style.display='none';
+    document.getElementById('chat-btn').style.display='flex';
     loadData();
   } else {
     document.getElementById('pw-error').textContent='Incorrect password, try again.';
     document.getElementById('pw-input').value='';
     document.getElementById('pw-input').focus();
+  }
+}
+
+// ── Chat assistant ──
+const _OKEY='__LLM_KEY__';
+const _SYSPROMPT=`You are Mango, a friendly AI travel assistant built specifically for Sha and Nikki's India & Bangkok trip in 2026. Be warm, concise, and practical. Use bullet points for lists.
+
+THEIR ITINERARY:
+- May 4-5: Both in Melbourne
+- May 6-7: Sha travels Melbourne → Nellore, India
+- May 8-28: Sha in Nellore (family time). Nikki in Melbourne until May 15.
+- May 15: Nikki flies Melbourne → Delhi (still to book, ±1-2 days flex)
+- May 29 - Jun 3: Both together in Delhi. Family event Sat May 30.
+- Jun 4: Both travel Delhi → Nellore together (to book, ±1 day)
+- Jun 5-9: Both in Nellore together
+- Jun 10: Drive Nellore → Chennai (~3 hrs). Night flight.
+- Jun 10 23:40: AirAsia FD154 Chennai → Bangkok (confirmed)
+- Jun 11-13: Both in Bangkok
+- Jun 14 21:40: Jetstar JQ30 Bangkok → Melbourne (confirmed)
+- Jun 16: Arrive Melbourne
+
+FLIGHTS STILL TO BOOK:
+- Nikki: Melb → Delhi ~May 15 (±1-2 days)
+- Sha: Melb → Nellore ~May 6-7 (±1-2 days)
+- Both: Delhi → Nellore Jun 4 (±1 day)
+
+You help with: flight search tips, hotel picks, things to do in Delhi/Nellore/Chennai/Bangkok, packing lists, budget, local transport, food, weather, visa info, currency tips. Keep responses short. Address them by name when relevant.`;
+let _chatHistory=[];
+let _chatOpen=false;
+function toggleChat(){
+  _chatOpen=!_chatOpen;
+  const p=document.getElementById('chat-panel');
+  p.style.display=_chatOpen?'flex':'none';
+  if(_chatOpen&&!_chatHistory.length){
+    _addBotMsg('Hey '+( currentUser||'there')+'! \u{1F5FA}\uFE0F I know your whole itinerary \u2014 ask me anything about flights, hotels, Bangkok tips, packing, or anything else for the trip!');
+    setTimeout(()=>document.getElementById('chat-input').focus(),50);
+  }
+}
+function _addMsg(html,align,bg,col){
+  const d=document.getElementById('chat-messages');
+  const b=document.createElement('div');
+  b.style.cssText=`max-width:88%;padding:8px 11px;border-radius:11px;font-size:12px;line-height:1.55;background:${bg};color:${col};align-self:${align};white-space:pre-wrap;word-break:break-word;`;
+  b.innerHTML=html;
+  d.appendChild(b);
+  d.scrollTop=d.scrollHeight;
+  return b;
+}
+function _addUserMsg(t){_addMsg(t,'flex-end','#534AB7','#fff');}
+function _addBotMsg(t){_addMsg(t,'flex-start','#f3f4f6','#111827');}
+function _addTyping(){
+  const d=document.getElementById('chat-messages');
+  const b=document.createElement('div');
+  b.id='chat-typing';
+  b.style.cssText='padding:8px 11px;border-radius:11px;font-size:12px;background:#f3f4f6;color:#9ca3af;align-self:flex-start;';
+  b.innerHTML='<span style="animation:none;">&#x2022;&#x2022;&#x2022;</span>';
+  d.appendChild(b);
+  d.scrollTop=d.scrollHeight;
+  return b;
+}
+async function sendChat(){
+  const inp=document.getElementById('chat-input');
+  const text=inp.value.trim();
+  if(!text)return;
+  inp.value='';
+  _addUserMsg(text);
+  _chatHistory.push({role:'user',content:text});
+  if(_OKEY==='__LLM_KEY__'||!_OKEY||_OKEY.length<10){
+    _addBotMsg('\u26A0\uFE0F LLM key not configured. Add LLM_KEY to GitHub secrets and redeploy.');
+    _chatHistory.pop();
+    return;
+  }
+  const typing=_addTyping();
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':_OKEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-3-5-haiku-20241022',system:_SYSPROMPT,messages:_chatHistory,max_tokens:500})
+    });
+    const j=await r.json();
+    typing.remove();
+    if(j.error){_addBotMsg('\u274C '+j.error.message);_chatHistory.pop();return;}
+    const reply=j.content[0].text;
+    _chatHistory.push({role:'assistant',content:reply});
+    _addBotMsg(reply);
+  }catch(e){
+    typing.remove();
+    _addBotMsg('Could not connect. Check your internet connection.');
+    _chatHistory.pop();
   }
 }
 
