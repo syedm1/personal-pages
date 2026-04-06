@@ -391,9 +391,15 @@ let _binId=localStorage.getItem('tripBinId')||null;
 let tripData={dayNotes:{},stickyNotes:[]};
 async function _ensureBin(){
   if(_binId)return;
+  try{
+    const lr=await fetch('https://api.jsonbin.io/v3/b?meta=true',{headers:{'X-Access-Key':_APIKEY}});
+    const lj=await lr.json();
+    const found=(lj.records||[]).find(x=>x.metadata&&x.metadata.name==='sha-nikki-trip-2026');
+    if(found){_binId=found.metadata.id;localStorage.setItem('tripBinId',_binId);return;}
+  }catch(e){}
   const r=await fetch(_BINAPI,{method:'POST',headers:{'Content-Type':'application/json','X-Access-Key':_APIKEY,'X-Bin-Name':'sha-nikki-trip-2026'},body:JSON.stringify(tripData)});
   const j=await r.json();
-  if(!j.metadata)throw new Error(j.message||'JSONBin create failed — check API key or CORS');
+  if(!j.metadata)throw new Error(j.message||'JSONBin create failed - check API key or CORS');
   _binId=j.metadata.id;
   localStorage.setItem('tripBinId',_binId);
 }
