@@ -247,10 +247,38 @@ function _renderChatHistory(){
   if(!d)return;
   d.innerHTML='';
   if(!_chatMessages.length){
-    _addBotMsg('Hey '+(currentUser||'there')+'! \uD83D\uDDFA\uFE0F Ask me anything about your India & Bangkok trip \u2014 flights, hotels, packing, what to do, or anything else!');
+    const typing=_addTyping();
+    setTimeout(()=>{
+      typing.remove();
+      _addBotMsg('Hey '+(currentUser||'there')+'! \uD83E\uDD6F I\u2019m Mango \u2014 your trip assistant for India & Bangkok 2026. What can I help with?');
+      _addSuggestions();
+    },900);
   }else{
     _chatMessages.forEach(m=>{m.role==='user'?_addUserMsg(m.content):_addBotMsg(m.content);});
   }
+}
+function _addSuggestions(){
+  const d=document.getElementById('chat-messages');
+  if(!d)return;
+  const wrap=document.createElement('div');
+  wrap.id='chat-suggestions';
+  wrap.style.cssText='display:flex;flex-direction:column;gap:7px;align-self:flex-start;max-width:92%;margin-top:2px;';
+  const chips=['What should I pack? \uD83C\uDF92','Best food spots in Delhi \uD83C\uDF5B','Bangkok must-dos \uD83C\uDF1F','Flight times & routes \u2708\uFE0F'];
+  chips.forEach(c=>{
+    const btn=document.createElement('button');
+    btn.textContent=c;
+    btn.style.cssText='background:#f3f0ff;color:#534AB7;border:1.5px solid rgba(83,74,183,0.2);border-radius:20px;padding:8px 15px;font-size:12px;font-family:inherit;cursor:pointer;text-align:left;transition:background 0.15s;';
+    btn.onmouseover=()=>{btn.style.background='#ebe6ff';};
+    btn.onmouseout=()=>{btn.style.background='#f3f0ff';};
+    btn.onclick=()=>{
+      const s=document.getElementById('chat-suggestions');if(s)s.remove();
+      document.getElementById('chat-input').value=c;
+      sendChat();
+    };
+    wrap.appendChild(btn);
+  });
+  d.appendChild(wrap);
+  d.scrollTop=d.scrollHeight;
 }
 let _chatSaveTimer=null;
 function _scheduleChatSave(){
@@ -366,6 +394,7 @@ async function sendChat(){
   if(!text)return;
   inp.value='';
   _addUserMsg(text);
+  const _sg=document.getElementById('chat-suggestions');if(_sg)_sg.remove();
   _chatMessages.push({role:'user',content:text,time:new Date().toISOString()});
   if(!_OKEY||_OKEY.length<20){
     _addBotMsg('\u26A0\uFE0F LLM key not configured. Add LLM_KEY to GitHub secrets and redeploy.');
