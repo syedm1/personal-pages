@@ -367,6 +367,41 @@ function _addMsg(html,align,bg,col){
   return b;
 }
 function _addUserMsg(t){_addMsg(t,'flex-end','#534AB7','#fff');}
+function _renderMd(t){
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function inline(s){
+    s=s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+    s=s.replace(/\*([^*\n]+?)\*/g,'<em>$1</em>');
+    s=s.replace(/_([^_\n]+?)_/g,'<em>$1</em>');
+    s=s.replace(/`([^`]+?)`/g,'<code style="background:#e8e4ff;color:#534AB7;border-radius:3px;padding:1px 5px;font-size:11px;font-family:monospace;">$1</code>');
+    return s;
+  }
+  var lines=t.split('\n');
+  var html='';
+  var inList=false;
+  for(var i=0;i<lines.length;i++){
+    var l=lines[i];
+    var li=l.match(/^[\-\*\u2022]\s+([\s\S]+)/);
+    if(li){
+      if(!inList){html+='<ul style="margin:4px 0 4px 16px;padding:0;list-style:disc;">';inList=true;}
+      html+='<li style="margin:2px 0;">'+inline(esc(li[1]))+'</li>';
+    }else{
+      if(inList){html+='</ul>';inList=false;}
+      var hd=l.match(/^(#{1,3})\s+([\s\S]+)/);
+      if(hd){
+        var sz=hd[1].length===1?'14px':hd[1].length===2?'13px':'12px';
+        html+='<div style="font-weight:700;font-size:'+sz+';margin:7px 0 3px;">'+inline(esc(hd[2]))+'</div>';
+      }else if(l.trim()===''){
+        html+='<div style="height:5px;"></div>';
+      }else{
+        html+='<div style="margin:1px 0;">'+inline(esc(l))+'</div>';
+      }
+    }
+  }
+  if(inList)html+='</ul>';
+  return html;
+}
+
 function _addBotMsg(t){
   const d=document.getElementById('chat-messages');
   const row=document.createElement('div');
@@ -374,8 +409,8 @@ function _addBotMsg(t){
   const av=document.createElement('img');
   av.src=_MANGO_IMG;av.style.cssText='width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0;margin-top:2px;';
   const bub=document.createElement('div');
-  bub.style.cssText='padding:8px 11px;border-radius:11px;font-size:12px;line-height:1.55;background:#f3f4f6;color:#111827;white-space:pre-wrap;word-break:break-word;max-width:100%;';
-  bub.innerHTML=t;row.appendChild(av);row.appendChild(bub);d.appendChild(row);d.scrollTop=d.scrollHeight;return row;
+  bub.style.cssText='padding:8px 11px;border-radius:11px;font-size:12px;line-height:1.55;background:#f3f4f6;color:#111827;word-break:break-word;max-width:100%;';
+  bub.innerHTML=_renderMd(t);row.appendChild(av);row.appendChild(bub);d.appendChild(row);d.scrollTop=d.scrollHeight;return row;
 }
 function _addTyping(){
   const d=document.getElementById('chat-messages');
